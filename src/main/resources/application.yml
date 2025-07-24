@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 3
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/ai?useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mybatis-plus:
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
+ali:
+  api-key: sk-4988bd9cec3a46b0ac544966d1e70cfc
+  endpoint: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
+
+
+logging:
+  level:
+    org.example.mapper: debug
+    com.baomidou.mybatisplus: debug

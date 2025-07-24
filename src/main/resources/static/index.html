@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手 - 登录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: '#165DFF',
+                secondary: '#36CFC9',
+                neutral: '#F5F7FA',
+                dark: '#1D2129',
+              },
+              fontFamily: {
+                inter: ['Inter', 'system-ui', 'sans-serif'],
+              },
+            },
+          }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+          .content-auto {
+            content-visibility: auto;
+          }
+          .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .scale-up {
+            transform: scale(1);
+            opacity: 1;
+          }
+          .scale-down {
+            transform: scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+          }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+<!-- 登录界面 -->
+<div id="login-page" class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
+        <div class="p-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                    <i class="fa fa-comments text-primary text-2xl"></i>
+                </div>
+                <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark">AI智能助手</h2>
+                <p class="text-gray-500 mt-2">请登录后开始对话</p>
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <div class="space-y-2">
+                    <label for="username" class="block text-sm font-medium text-gray-700">用户名</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" id="username" name="username"
+                               class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom outline-none"
+                               placeholder="请输入用户名" required>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700">密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="password" name="password"
+                               class="w-full pl-10 pr-10 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom outline-none"
+                               placeholder="请输入密码" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-custom flex items-center justify-center group">
+                    <span>登录</span>
+                    <i class="fa fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-gray-500 text-sm">
+                <p>还没有账号？ <a href="#" class="text-primary hover:text-primary/80 font-medium">注册</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 text-center text-gray-500 text-sm">
+        <p>© 2023 AI智能助手. 保留所有权利.</p>
+    </div>
+</div>
+
+<!-- AI对话界面 (默认隐藏) -->
+<div id="chat-page" class="hidden w-full max-w-4xl h-[90vh] flex flex-col bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <i class="fa fa-comments text-primary"></i>
+            </div>
+            <h1 class="text-xl font-bold text-dark">AI智能助手</h1>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <button id="clear-history" class="text-gray-500 hover:text-primary transition-custom p-2 rounded-full hover:bg-gray-100">
+                <i class="fa fa-trash-o"></i>
+                <span class="ml-1 text-sm hidden md:inline">清除历史</span>
+            </button>
+            <div class="relative">
+                <button id="user-menu-button" class="flex items-center space-x-2 focus:outline-none">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                        <span id="user-initial">U</span>
+                    </div>
+                    <span id="username-display" class="text-sm font-medium hidden md:inline">用户名</span>
+                    <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                </button>
+
+                <!-- 用户菜单 (退出登录等选项) -->
+                <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10 scale-down transition-all duration-200">
+                    <a href="#" id="profile-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="fa fa-user-o mr-2"></i>个人资料
+                    </a>
+                    <a href="#" id="logout-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="fa fa-sign-out mr-2"></i>退出登录
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 对话内容区域 -->
+    <main id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 bg-neutral/50">
+        <!-- 欢迎消息 -->
+        <div class="flex items-start">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3">
+                <i class="fa fa-robot text-primary text-sm"></i>
+            </div>
+            <div class="bg-white rounded-lg rounded-tl-none px-4 py-3 max-w-[85%] shadow-sm">
+                <p class="text-gray-800">您好！我是您的AI助手，有什么我可以帮助您的吗？</p>
+            </div>
+        </div>
+
+        <!-- 对话消息会动态添加到这里 -->
+    </main>
+
+    <!-- 输入区域 -->
+    <footer class="border-t border-gray-200 p-4">
+        <form id="chat-form" class="relative">
+        <textarea id="message-input"
+                  class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom outline-none resize-none"
+                  rows="1" placeholder="输入您的问题..."></textarea>
+            <button type="submit"
+                    class="absolute right-2 bottom-2 bg-primary hover:bg-primary/90 text-white rounded-lg px-4 py-2 transition-custom flex items-center">
+                <i class="fa fa-paper-plane-o mr-1"></i>
+                <span class="text-sm hidden sm:inline">发送</span>
+            </button>
+        </form>
+        <div class="mt-2 text-xs text-gray-500 text-center">
+            <p>支持流式响应 | 按Shift+Enter换行</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // DOM元素
+    const loginPage = document.getElementById('login-page');
+    const chatPage = document.getElementById('chat-page');
+    const loginForm = document.getElementById('login-form');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const clearHistoryBtn = document.getElementById('clear-history');
+    const togglePasswordBtn = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password');
+    const usernameDisplay = document.getElementById('username-display');
+    const userInitial = document.getElementById('user-initial');
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenu = document.getElementById('user-menu');
+    const logoutLink = document.getElementById('logout-link');
+
+    // 当前登录用户
+    let currentUser = null;
+    let userId = null;
+    let menuOpen = false;
+
+    // 密码显示切换
+    togglePasswordBtn.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+    });
+
+    // 用户菜单切换
+    userMenuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        userMenu.classList.remove('scale-down');
+        userMenu.classList.add('scale-up');
+      } else {
+        userMenu.classList.remove('scale-up');
+        userMenu.classList.add('scale-down');
+      }
+    });
+
+    // 点击页面其他地方关闭菜单
+    document.addEventListener('click', () => {
+      if (menuOpen) {
+        userMenu.classList.remove('scale-up');
+        userMenu.classList.add('scale-down');
+        menuOpen = false;
+      }
+    });
+
+    // 阻止菜单内部点击事件冒泡
+    userMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // 退出登录功能
+    logoutLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      if (confirm('确定要退出登录吗？')) {
+        try {
+          // 清除本地存储的token
+          localStorage.removeItem('token');
+
+          // 重置用户信息
+          currentUser = null;
+          userId = null;
+
+          // 清空聊天历史
+          chatMessages.innerHTML = `
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3">
+                <i class="fa fa-robot text-primary text-sm"></i>
+              </div>
+              <div class="bg-white rounded-lg rounded-tl-none px-4 py-3 max-w-[85%] shadow-sm">
+                <p class="text-gray-800">您好！我是您的AI助手，有什么我可以帮助您的吗？</p>
+              </div>
+            </div>
+          `;
+
+          // 切换到登录页面
+          chatPage.classList.add('hidden');
+          loginPage.classList.remove('hidden');
+
+          // 重置登录表单
+          loginForm.reset();
+
+          // 关闭菜单
+          userMenu.classList.remove('scale-up');
+          userMenu.classList.add('scale-down');
+          menuOpen = false;
+
+        } catch (error) {
+          console.error('退出登录错误:', error);
+          alert('退出登录失败，请稍后重试');
+        }
+      }
+    });
+
+    // 处理登录表单提交
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = passwordInput.value;
+
+      try {
+        // 显示加载状态
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>登录中...';
+
+        // 调用登录API
+        const response = await fetch('http://localhost:8080/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            'username': username,
+            'password': password
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.token) {
+          // 登录成功，保存token和用户信息
+          localStorage.setItem('token', data.token);
+          currentUser = username;
+          userId = username;
+
+          // 更新UI显示
+          usernameDisplay.textContent = currentUser;
+          userInitial.textContent = currentUser.charAt(0).toUpperCase();
+
+          // 切换到聊天界面
+          loginPage.classList.add('hidden');
+          chatPage.classList.remove('hidden');
+
+          // 自动聚焦到输入框
+          messageInput.focus();
+        } else {
+          // 登录失败
+          alert(data.error || '登录失败，请检查用户名和密码');
+        }
+
+      } catch (error) {
+        console.error('登录错误:', error);
+        alert('登录失败，请稍后重试');
+      } finally {
+        // 恢复按钮状态
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+
+    // 处理聊天表单提交
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // 清空输入框并调整高度
+      messageInput.value = '';
+      adjustTextareaHeight();
+
+      // 添加用户消息到界面
+      addMessageToUI('user', message);
+
+      // 显示AI正在输入的状态
+      const aiMessageElement = addMessageToUI('ai', '', true);
+
+      try {
+        // 调用流式API
+        const response = await fetch(`http://localhost:8080/ai/stream?userId=${encodeURIComponent(userId)}&prompt=${encodeURIComponent(message)}`);
+
+        if (!response.ok) {
+          throw new Error('请求失败');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aiResponse = '';
+
+        // 处理流式响应
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          // 解析SSE数据
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.substring(5).trim();
+              if (data) {
+                aiResponse += data;
+                // 更新AI消息
+                updateAiMessage(aiMessageElement, aiResponse);
+              }
+            }
+          }
+        }
+
+        // 完成AI消息显示
+        updateAiMessage(aiMessageElement, aiResponse, false);
+
+      } catch (error) {
+        console.error('发送消息错误:', error);
+        updateAiMessage(aiMessageElement, `抱歉，发生错误: ${error.message}`, false);
+      }
+    });
+
+    // 清除对话历史
+    clearHistoryBtn.addEventListener('click', async () => {
+      if (confirm('确定要清除所有对话历史吗？')) {
+        try {
+          await fetch(`http://localhost:8080/ai/clear?userId=${encodeURIComponent(userId)}`);
+          // 清空界面消息（保留欢迎消息）
+          const welcomeMessage = chatMessages.firstElementChild;
+          chatMessages.innerHTML = '';
+          chatMessages.appendChild(welcomeMessage);
+        } catch (error) {
+          console.error('清除历史错误:', error);
+          alert('清除历史失败，请稍后重试');
+        }
+      }
+    });
+
+    // 调整文本框高度以适应内容
+    messageInput.addEventListener('input', adjustTextareaHeight);
+
+    function adjustTextareaHeight() {
+      // 重置高度以便正确计算滚动高度
+      messageInput.style.height = 'auto';
+      // 设置新高度，最大5行
+      const newHeight = Math.min(messageInput.scrollHeight, 5 * 24); // 假设每行24px
+      messageInput.style.height = `${newHeight}px`;
+    }
+
+    // 支持Shift+Enter换行
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault();
+        messageInput.value += '\n';
+        adjustTextareaHeight();
+      } else if (e.key === 'Enter') {
+        // 普通Enter键提交表单
+        chatForm.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    // 添加消息到界面
+    function addMessageToUI(role, content, isLoading = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `flex items-start ${role === 'user' ? 'justify-end' : ''}`;
+
+      let avatar, messageBubble;
+
+      if (role === 'user') {
+        // 用户消息
+        avatar = `
+          <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 ml-3">
+            <span class="text-gray-600 font-medium text-sm">${currentUser.charAt(0).toUpperCase()}</span>
+          </div>
+        `;
+
+        messageBubble = `
+          <div class="bg-primary text-white rounded-lg rounded-tr-none px-4 py-3 max-w-[85%] shadow-sm">
+            ${content}
+          </div>
+        `;
+
+        messageDiv.innerHTML = `${messageBubble}${avatar}`;
+      } else {
+        // AI消息
+        avatar = `
+          <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3">
+            <i class="fa fa-robot text-primary text-sm"></i>
+          </div>
+        `;
+
+        let contentHtml = content;
+        if (isLoading) {
+          contentHtml = `
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+          `;
+        }
+
+        messageBubble = `
+          <div class="bg-white rounded-lg rounded-tl-none px-4 py-3 max-w-[85%] shadow-sm">
+            <div class="ai-message-content">${contentHtml}</div>
+          </div>
+        `;
+
+        messageDiv.innerHTML = `${avatar}${messageBubble}`;
+      }
+
+      chatMessages.appendChild(messageDiv);
+      // 滚动到底部
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      return messageDiv;
+    }
+
+    // 更新AI消息内容
+    function updateAiMessage(element, content, isLoading = false) {
+      const contentElement = element.querySelector('.ai-message-content');
+      if (contentElement) {
+        contentElement.textContent = content;
+        // 滚动到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+
+    // 页面加载时检查是否已登录
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        // 简单模拟已登录状态，实际应用中应该验证token有效性
+        currentUser = '用户';
+        userId = 'user123';
+        usernameDisplay.textContent = currentUser;
+        userInitial.textContent = currentUser.charAt(0).toUpperCase();
+
+        loginPage.classList.add('hidden');
+        chatPage.classList.remove('hidden');
+      }
+    });
+</script>
+</body>
+</html>
