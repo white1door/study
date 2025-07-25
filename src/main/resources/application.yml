@@ -11,7 +11,7 @@ spring:
 
 
   datasource:
-    url: jdbc:mysql://localhost:3307/ai?useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/ai?useSSL=false&serverTimezone=Asia/Shanghai更改自己的数据库端口和名字
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,7 +23,7 @@ spring:
 
 
 ali:
-  api-key: sk-4988bd9cec3a46b0ac544966d1e70cfc
+  api-key: //前往阿里云百炼平台申请自己的api
   endpoint: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
 
 
